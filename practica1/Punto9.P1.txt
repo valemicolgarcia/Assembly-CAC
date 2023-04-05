@@ -1,0 +1,44 @@
+9) Escribir una subrutina CONCAR que cuente el número de caracteres de una cadena de caracteres terminada en
+cero (00H) almacenada en la memoria del microprocesador. La cadena se pasa a la subrutina por referencia vía
+registro.
+
+
+ORG 1000H ;DECLARACIONES Y RESERVA DE ESPACIO EN MEMORIA
+
+CADENA DB DUP(72H,79H,76H,65H,00H) ; H O L A NULL con codigo ascii
+FIN_TABLA DB ?
+NULL DB 00H                        ;caracter NULL del codigo ascii
+contador db 0                      ;variable en memoria donde se va a almacenar la cantidad de caracteres de la palabra !!no la pide
+
+
+ORG 3000H ; SUBRUTINAS---------------------------------------------------------------------------------------------------------------
+
+CONCAR: MOV DL, 0               ;inicializo el contador de caracteres en 0
+MOV AL, [BX]                    ;muevo el primer elemento de la cadena a AL
+
+WHILE: CMP AL, AH               ;si son iguales termino de contar, pero sino sigo analizando los elementos de la cadena.
+JZ FIN
+INC DL                          ;incremento el contador de caracteres
+DEC CL                          ;decremento la dimension logica
+JZ FIN                          ;si se termino la palabra salto a fin
+INC BX                          ;incremento la direccion
+MOV AL, [BX]                    ;muevo elemento de la cadena a registro
+JMP WHILE                       ;salto a while incondicionalmente
+
+FIN: MOV BX, OFFSET contador    ;muevo la direccion del contador a bx  !!no lo pide
+MOV [BX], DL                    ;muevo a memoria el valor del contador que tenia almacenado en el registro !!no lo pide
+
+RET                             ;intruccion para finalizar el programa
+
+
+ORG 2000H ; MAIN---------------------------------------------------------------------------------------------------------------------
+
+MOV BX, OFFSET CADENA           ;muevo la direccion de la cadena al registro AL (PASAJE POR REFERENCIA VIA REGISTRO)
+MOV AH, NULL                    ;muevo caracter 00 a registro (PASAJE POR VALOR VIA REGISTRO)
+MOV CL, OFFSET FIN_TABLA - OFFSET CADENA     ;muevo la dimension logica de la tabla
+CALL CONCAR                     ;llamo a la subrutina 
+
+
+
+HLT
+END

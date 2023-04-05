@@ -1,0 +1,51 @@
+10) Escribir una subrutina SWAP que intercambie dos datos de 16 bits almacenados en memoria. Los parámetros
+deben ser pasados por referencia desde el programa principal a través de la pila.
+
+
+ORG 1000H ;DECLARACIONES Y RESERVA DE ESPACIO EN MEMORIA
+
+NUM1 DW 15;
+NUM2 DW 20;
+
+
+ORG 3000H ; SUBRUTINAS---------------------------------------------------------------------------------------------------------------
+
+SWAP: MOV BX, SP              ;muevo el sp al registro
+ADD BX, 2                     ;le sumo dos para saltear las dos direcciones que se apilan al llamar a subrutina
+MOV AX, [BX]                  ;muevo la direccion de NUM 2 a AX
+ADD BX, 2                     ;le sumo dos a bx para que busque la direccion
+MOV BX, [BX]                  ;muevo la direccion de NUM 1 a BX
+MOV CX, BX                    ;muevo a cx la direccion de num1
+MOV DX, [BX]                  ;muevo a DX el valor de NUM1
+MOV BX, AX                    ;pongo la direccion de NUM2 en BX
+MOV AX, [BX]                  ;pongo 
+MOV [BX], DX                  ;pongo en memoria de NUM2 el valor NUM1
+MOV BX, CX                    ;pongo la direccion de num 1 en bx para que se pueda procesar
+MOV [BX], AX
+;terminar de chequear bien
+
+RET                           ;intruccion para finalizar el programa
+
+
+ORG 2000H ; MAIN---------------------------------------------------------------------------------------------------------------------
+
+MOV CX, OFFSET NUM1                 ;Paso la direccion de num1 a registro
+MOV DX, OFFSET NUM2                 ;Paso la direccion de num2 a registro
+PUSH CX                             ;Apilo la direccion de num 1 
+PUSH DX                             ;Apilo la direccion de num 2
+
+CALL SWAP                    
+POP CX
+POP DX
+
+
+
+HLT
+END
+
+;XX -->por llamar a la subrutina
+;XX
+;DX --> direc
+;DX
+;CX --> direc
+;CX

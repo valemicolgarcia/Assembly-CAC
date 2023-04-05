@@ -1,0 +1,41 @@
+
+								página: 1 
+
+ Listado Fuente: Ej2P1.LST
+ Programa Fuente en: Ej2P1.ASM
+ Fecha: Fri Mar 31 10:35:39 2023
+
+  Dir. Codigo maquina	 Linea 	 Codigo en lenguaje ensamble
+
+			      1	ORG 1000H
+ 1000 80		      2	NUM0 DB 80H
+ 1001 C8		      3	NUM1 DB 200
+ 1002 FF		      4	NUM2 DB -1
+ 1003 7F		      5	BYTE0 DB 01111111B
+ 1004 AA		      6	BYTE1 DB 10101010B
+			      7	ORG 2000H
+ 2000 8A 06 00 10	      8	MOV AL, NUM0
+ 2004 02 C0		      9	ADD AL, AL
+ 2006 FE 06 01 10	     10	INC NUM1
+ 200A 8A 3E 01 10	     11	MOV BH, NUM1
+ 200E 8A DF		     12	MOV BL, BH
+ 2010 FE CB		     13	DEC BL
+ 2012 2A DF		     14	SUB BL, BH
+ 2014 8A 2E 04 10	     15	MOV CH, BYTE1
+ 2018 22 2E 03 10	     16	AND CH, BYTE0
+ 201C F6 16 03 10	     17	NOT BYTE0
+ 2020 0A 2E 03 10	     18	OR CH, BYTE0
+ 2024 80 F5 FF		     19	XOR CH, 11111111B
+ 2027 F4		     20	HLT
+			     21	END
+
+
+ S I M B O L O S:
+
+ Nombre:	Tipo:		Valor:
+
+ NUM0    	Mem. Byte	1000h
+ NUM1    	Mem. Byte	1001h
+ NUM2    	Mem. Byte	1002h	No usado
+ BYTE0   	Mem. Byte	1003h
+ BYTE1   	Mem. Byte	1004h

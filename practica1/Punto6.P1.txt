@@ -1,0 +1,29 @@
+Escribir un programa que, utilizando las mismas variables y datos que el programa del punto anterior (TABLA, FIN, TOTAL, MAX), determine cuántos de los elementos de TABLA son menores o iguales que MAX. Dicha cantidad debe almacenarse en la celda TOTAL. 
+
+
+ORG 1000H 
+TABLA DB DUP(2,4,6,8,10,12,14,16,18,20)     ;creo la tabla
+FIN DB ? 
+TOTAL DB ?                                  ;guardo espacio para memoria
+MAX DB 13                                   ;inicializo variable max en 13
+
+ORG 2000H
+MOV AL, 0                                   ;pongo cd elemento de la tabla, inicializo en 0
+MOV DL, 0 ;inicializo un contador
+MOV CL, OFFSET FIN-OFFSET TABLA             ;dim logica de la tabla
+MOV BX, OFFSET TABLA                        ;direccion de la tabla
+MOV AH, MAX                                 ;muevo max a un registro 
+
+SEGUIR: MOV AL, [BX]                        ; muevo elemento de la tabla
+CMP AH, AL                                  ;comparo AH (max) con AL (elem. tabla)
+JC SALTAR                                   ; si hay carry quiere decir que el elemento de la tabla es mayor, entonces no suma nada, y me salteo la linea 
+INC DL                                      ;incremento el contador en 1
+SALTAR:INC BX                               ;incremento la dirección
+DEC CL                                      ;decremento dimension logica
+JNZ SEGUIR                                  ;si la dim logica no es 0, quiere decir que hay que seguir recorriendo la tabla, salto a SEGUIR
+
+MOV BX, OFFSET TOTAL                        ;guardo la direccion de la variable total
+MOV [BX], DL                                ;muevo el resultado del contador a memoria
+
+HLT
+END

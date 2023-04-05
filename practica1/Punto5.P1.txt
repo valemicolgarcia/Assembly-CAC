@@ -1,0 +1,24 @@
+El siguiente programa suma todos los elementos de una tabla almacenada a partir de la dirección 1000H de la
+memoria del simulador. Analice el funcionamiento y determine el resultado de la suma. Comprobar el resultado
+en el MSX88.
+
+ORG 1000H 
+TABLA DB DUP(2,4,6,8,10,12,14,16,18,20) ;creo la tabla
+FIN DB ? 
+TOTAL DB ? ;guardo espacio para memoria
+MAX DB 13; inicializo variable max en 13
+
+ORG 2000H
+MOV AL, 0
+MOV CL, OFFSET FIN-OFFSET TABLA              ; dim logica de la tabla
+MOV BX, OFFSET TABLA                         ;direccion de la tabla
+SUMA: ADD AL, [BX]                           ; sumo elemento de la tabla
+INC BX                                       ;incremento la dirección
+DEC CL                                       ;decremento dimension logica
+JNZ SUMA                                     ;si la dim logica no es 0, quiere decir que hay que seguir recorriendo la tabla, salto a SUMA
+
+MOV BX, OFFSET TOTAL    ;guardo la direccion de la variable total
+MOV [BX], AL            ;muevo el resultado de la suma a memoria
+
+HLT
+END
