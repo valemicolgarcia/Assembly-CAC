@@ -1,0 +1,65 @@
+Usando la subrutina del ejercicio anterior (ejercicio 13) escribir la subrutina VOCALES, que recibe una cadena
+por referencia, y devuelve, en un registro, la cantidad de vocales que tiene esa cadena.
+
+ORG 1000H
+
+cadena db "eeeeeLL"
+vocales DB "aeiouAEIOU"
+letra db "A"
+
+ORG 3000H
+
+
+ES_VOCAL: PUSH AX
+PUSH BX 
+PUSH CX
+
+MOV BX, OFFSET vocales                                            ;direccion de cadena de vocales
+MOV CL, OFFSET letra -OFFSET vocales                              ;dimension logica de las vocales
+
+LOOP: MOV AH, [BX]                                                 ;muevo primer vocal
+CMP AH, AL                                                         ;comparo letra con vocal
+JNZ seguir
+MOV DL, 0FFh                                                       ;comparo DL con 0FFh
+JMP FIN                                                            ;si es vocal directo salto a fin, no analizo mas
+seguir: MOV DL, 00h                                                ;si todavia no es vocal, muevo a DL 00
+INC BX                                                             ;avanzo en la cadena de vocales para seguir comparando (direccion ++)
+DEC CL                                                             ;disminuyo la dimension logica de la cadena de vocales
+JNZ LOOP
+
+; en dx voy a devolver si se trata de vocal o no, por eso no pusheo
+
+FIN:POP CX
+POP BX
+POP AX
+RET
+
+VOCALES: PUSH AX
+PUSH BX
+PUSH CX
+MOV DH, 0                                                           ; inicializo el contador de vocales                  
+MOV CL, OFFSET vocales - OFFSET cadena                              ; dim lógica
+
+loop: MOV AL, [BX]                                                  ; muevo letra de la cadena a AL
+CALL ES_VOCAL                                                       ;llamo a ESVOCAL que devuelve en DL si es vocal o no
+CMP DL, 0FFh                                                        ;si es 0ffh significa que es una vocal
+JNZ sigo
+INC DH                                                              ;incremento el contador de vocales
+sigo: INC BX
+DEC CL                                                              ;disminuyo la dimension logica de la cadena
+JNZ loop
+
+
+POP CX
+POP BX
+POP AX
+RET
+; en dh va a devolver la cantidad de vocales
+
+ORG 2000H
+
+MOV BX, OFFSET cadena                              ;muevo la direccion de la cadena
+CALL VOCALES                                       ;llamo a la subrutina vocales
+
+HLT 
+END

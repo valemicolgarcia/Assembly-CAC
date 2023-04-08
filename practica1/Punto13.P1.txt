@@ -1,0 +1,40 @@
+ Escriba la subrutina ES_VOCAL, que determina si un caracter es vocal o no. La rutina debe recibir el caracter
+por valor, y debe retornar, vía registro, el valor 0FFH si el caracter es una vocal, o 00H en caso contrario. 
+
+ORG 1000H
+
+VOCALES DB "aeiouAEIOU"
+letra db "A"
+
+ORG 3000H
+ES_VOCAL: PUSH AX
+PUSH BX 
+PUSH CX
+
+MOV BX, OFFSET VOCALES
+MOV CL, OFFSET letra -OFFSET VOCALES ; dim lógica
+
+LOOP: MOV AH, [BX] ;muevo primer vocal
+CMP AH, AL ; comparo letra con vocal
+JNZ seguir
+MOV DL, 0FFh
+JMP FIN
+seguir: MOV DL, 00h
+INC BX
+DEC CL
+JNZ LOOP
+
+; en dx voy a devolver si se trata de vocal o no, por eso no pusheo
+
+FIN:POP CX
+POP BX
+POP AX
+RET
+
+ORG 2000H
+
+MOV AL, letra
+CALL ES_VOCAL
+
+HLT 
+END

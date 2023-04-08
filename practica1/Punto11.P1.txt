@@ -1,0 +1,49 @@
+Modificar la subrutina del ejercicio 9 para que cuente la cantidad de veces que se repite un dado caracter en una
+cadena. Además, la subrutina debe cambiar el caracter especificado por una "X". El caracter a buscar se debe
+pasar por valor mientras que la cadena a analizar por referencia, todo a través de registros.
+
+
+ORG 1000H ;DECLARACIONES Y RESERVA DE ESPACIO EN MEMORIA
+
+CADENA DB DUP(72H,79H,76H,65H,00H) ; H O L A NULL con codigo ascii
+FIN_TABLA DB ?
+NULL DB 00H                        ;caracter NULL del codigo ascii
+contador db 0                      ;variable en memoria donde se va a almacenar la cantidad de caracteres de la palabra !!no la pide
+CARACTER DB 79H                    ;caracter o a buscar en la cadena.
+
+
+ORG 3000H ; SUBRUTINAS---------------------------------------------------------------------------------------------------------------
+
+CONCARCARAC: MOV DL, 0               ;inicializo el contador de caracteres en 0
+MOV AL, [BX]                    ;muevo el primer elemento de la cadena a AL
+
+WHILE: CMP AL, AH               ;si son iguales termino de contar, pero sino sigo analizando los elementos de la cadena.
+JZ FIN
+CMP AL, DH                      ;comparo el elemento de la cadena con el caracter a buscar
+JNZ CONTINUAR
+INC DL                          ;incremento el contador de caracteres cuando se encuentra el caracter a buscar, sino salteo la linea
+CONTINUAR:DEC CL                          ;decremento la dimension logica
+JZ FIN                          ;si se termino la palabra salto a fin
+INC BX                          ;incremento la direccion
+MOV AL, [BX]                    ;muevo elemento de la cadena a registro
+JMP WHILE                       ;salto a while incondicionalmente
+
+FIN: MOV BX, OFFSET contador    ;muevo la direccion del contador a bx  !!no lo pide
+MOV [BX], DL                    ;muevo a memoria el valor del contador que tenia almacenado en el registro !!no lo pide
+
+RET                             ;intruccion para finalizar el programa
+
+
+ORG 2000H ; MAIN---------------------------------------------------------------------------------------------------------------------
+
+MOV BX, OFFSET CADENA           ;muevo la direccion de la cadena al registro AL (PASAJE POR REFERENCIA VIA REGISTRO)
+MOV AH, NULL                    ;muevo caracter 00 a registro (PASAJE POR VALOR VIA REGISTRO)
+MOV DH, CARACTER                ;muevo el caracter a buscar al registro AL (PASAJE POR VALOR VIA REGISTRO)
+
+MOV CL, OFFSET FIN_TABLA - OFFSET CADENA     ;muevo la dimension logica de la tabla
+CALL CONCARCARAC                     ;llamo a la subrutina 
+
+
+
+HLT
+END

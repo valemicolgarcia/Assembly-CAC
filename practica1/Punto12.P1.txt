@@ -1,0 +1,41 @@
+Usando la subrutina ROTARIZ del ejercicio 8, escriba una subrutina ROTARDER que haga una rotación hacia
+la derecha de un byte almacenado en la memoria del microprocesador. Dicho byte y el número de posiciones a
+rotar deben pasarse por valor desde el programa principal a la subrutina a través de registros.
+
+
+
+ORG 1000H ;DECLARACIONES Y RESERVA DE ESPACIO EN MEMORIA
+
+POSICIONES DB 5                 ;posiciones a rotar
+NUM DB 11100011b                ;numero que voy a rotar
+bits db 8                       ;1byte son 8 bits
+
+ORG 3000H ; SUBRUTINAS---------------------------------------------------------------
+
+ROTARIZ : ADD BL, BL            ;al numero le sumo a si mismo, para que se vaya corriendo de a 1
+JNC SALTAR                      
+ADD BL, 1                       ;si hay carry significa que se perdio un byte por la izquierda, por eso le sumamos 1 y se ve por la derecha
+SALTAR: DEC AL
+JNZ ROTARIZ                     ;si decremento AL y me da 0, no vuelvo al loop
+
+RET                             ;intruccion para finalizar el programa
+
+
+ROTARDER: SUB AL, AH            ;resto los bits con el numero de posiciones que tenia que rotar para la derecha. Ah contiene lo que se rota para la izq (equivalente)
+;entonces en AL tengo las posiciones para ROTARIZ
+CALL ROTARIZ
+
+
+RET
+
+ORG 2000H ; MAIN------------------------------------------------------------------
+
+MOV AH, POSICIONES              ;muevo la variable posiciones al registro AH
+MOV AL, bits                    ;muevo bits a AL (1 byte)
+MOV BL, NUM                     ;muevo el numero que voy a rotar a BL
+ 
+CALL ROTARDER                   ;llamo a rotar derecha
+
+
+HLT
+END
