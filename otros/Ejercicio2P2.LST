@@ -1,0 +1,47 @@
+
+								página: 1 
+
+ Listado Fuente: Ejercicio2P2.LST
+ Programa Fuente en: Ejercicio2P2.ASM
+ Fecha: Wed Apr 12 14:37:22 2023
+
+  Dir. Codigo maquina	 Linea 	 Codigo en lenguaje ensamble
+
+			      1	ORG 1000H
+			      2	
+ 1000 01		      3	INI DB 01H                  ;carcater desde el c
+				ual tiene que imprimir
+ 1001 01		      4	FIN DB 255H                 ;caracter hasta el c
+				ual tiene que imprimir
+Error: Valor de expresion fuera de rango.
+			      5	
+			      6	
+			      7	
+ 1002 55		      8	DB 55H
+ 1003 4E		      9	DB 4EH
+ 1004 4C		     10	DB 4CH
+ 1005 50		     11	DB 50H
+ 1006 50		     12	FIN DB ?
+Error: Etiqueta o identificador redefinido.
+			     13	
+			     14	ORG 2000H
+			     15	
+ 2000 8A 26 06 10	     16	MOV AH, FIN
+ 2004 8A 06 00 10	     17	MOV AL, INI
+			     18	
+ 2008 CD 07		     19	LOOP: INT 7
+ 200A FE C0		     20	INC AL
+ 200C 3A E0		     21	CMP AH, AL
+ 200E 73 F8		     22	JNC LOOP
+			     23	
+ 2010 CD 00		     24	INT 0
+			     25	END
+
+
+ S I M B O L O S:
+
+ Nombre:	Tipo:		Valor:
+
+ INI     	Mem. Byte	1000h
+ FIN     	Mem. Byte	1006h
+ LOOP    	Etiqueta	2008h

@@ -1,0 +1,40 @@
+
+								página: 1 
+
+ Listado Fuente: example.LST
+ Programa Fuente en: example.ASM
+ Fecha: Wed Apr 12 15:27:20 2023
+
+  Dir. Codigo maquina	 Linea 	 Codigo en lenguaje ensamble
+
+			      1	; Memoria de Datos
+			      2	ORG 1000H
+ 1000 01		      3	FIN DB 01H 
+			      4	
+			      5	ORG 2000H
+			      6	
+			      7	
+ 2000 B0 01		      8	MOV AL, 1 ; indica que voy a imprimir 255 veces 
+				un caracter 
+			      9	
+ 2002 BB 00 10		     10	MOV BX, OFFSET FIN ; guardamos la longitud de nu
+				estro cartel
+			     11	
+ 2005 B1 01		     12	MOV CL, 01H
+ 2007 CD 07		     13	LOOP: INT 7 ; imprime siempre lo que tiene BX
+ 2009 FE C1		     14	INC CL 
+ 200B 88 0F		     15	MOV [BX], CL
+ 200D 80 F9 FF		     16	CMP CL, 255 
+ 2010 75 F5		     17	JNZ LOOP ; si AL es 25 sale
+			     18	
+ 2012 CD 00		     19	INT 0 ; para avisar que termino
+			     20	
+			     21	END
+
+
+ S I M B O L O S:
+
+ Nombre:	Tipo:		Valor:
+
+ FIN     	Mem. Byte	1000h
+ LOOP    	Etiqueta	2007h
