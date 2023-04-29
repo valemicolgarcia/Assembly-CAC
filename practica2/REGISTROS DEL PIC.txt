@@ -1,0 +1,15 @@
+a) Los registros del PIC son los siguientes:
+
+ISR (Interrupt Service Register): Es un registro de sólo lectura que indica qué interrupciones están siendo atendidas por el procesador. El valor en este registro es un mapa de bits, en el cual cada bit representa una interrupción. La dirección de este registro depende de la configuración del PIC.
+
+IRR (Interrupt Request Register): Es un registro de sólo lectura que indica qué interrupciones están pendientes de ser atendidas. El valor en este registro es un mapa de bits, en el cual cada bit representa una interrupción. La dirección de este registro depende de la configuración del PIC.
+
+IMR (Interrupt Mask Register): Es un registro programable que se utiliza para habilitar o deshabilitar las interrupciones. El valor en este registro es un mapa de bits, en el cual cada bit representa una interrupción. Si el bit está en 0, la interrupción correspondiente está habilitada; si el bit está en 1, la interrupción está deshabilitada. La dirección de este registro depende de la configuración del PIC.
+
+INT0-INT7: Son registros programables que se utilizan para asignar una interrupción específica a un canal de interrupción del PIC. La dirección de cada registro depende de la configuración del PIC.
+
+EOI (End of Interrupt): Es una señal que se envía al PIC para indicar que la interrupción ha sido atendida. El PIC utiliza esta señal para actualizar los registros ISR e IRR y permitir que se genere una nueva interrupción si es necesario. La dirección de este registro depende de la configuración del PIC.
+
+b) Los registros programables del PIC son IMR e INT0-INT7. Para programar estos registros, se utiliza la instrucción OUT, la cual envía un byte de datos a una dirección específica del PIC. La dirección de cada registro programable depende de la configuración del PIC. Por ejemplo, la instrucción OUT PIC+4, AL en el código de la pregunta envía el contenido del registro AL al registro INT0 del PIC.
+
+c) Las instrucciones CLI y STI se utilizan para habilitar o deshabilitar las interrupciones en el procesador. La instrucción CLI (Clear Interrupt Flag) deshabilita las interrupciones, mientras que la instrucción STI (Set Interrupt Flag) las habilita. Estas instrucciones son útiles cuando se trabaja con interrupciones y se necesita asegurarse de que ciertas secciones de código no sean interrumpidas. Por ejemplo, en el código de la pregunta, se utiliza la instrucción CLI al principio de la rutina para deshabilitar las interrupciones antes de configurar el PIC. Luego, se utiliza la instrucción STI después de la configuración del PIC para habilitar las interrupciones.

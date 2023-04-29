@@ -1,0 +1,66 @@
+PIC EQU 20H ;se definen las constantes
+EOI EQU 20H
+N_F10 EQU 10
+
+ORG 40 ;--------------------------------------------------
+IP_F10 DW RUT_F10
+
+ORG 1000H
+A DB 41H
+
+
+DIM_ABC DB 25
+
+ORG 2000H  ;----------------------------------------------
+CLI  ; CLEAR INTERRUMP FLAG --> borrar la bandera de interrupcion
+; deshabilita las instrucciones temporalmente
+
+MOV AL, 0FEH ; en binario es 1111 1110
+
+OUT PIC+1, AL ; PIC: registro IMR: register memory interruption
+; habilita o deshabilita las interrupciones especificas
+; habilita todas menos la del reloj
+
+;OUT: envia datos desde un registro de la cpu a un puerto de e/s
+
+MOV AL, N_F10 ;mueve el valor de F10 a la constante
+
+OUT PIC+4, AL ; PIC: registro INT0 ; envio 10 a int0, y se va a activar 
+; cuando ocurra el evento que la genere.
+
+;MOV DX, 0 ; cuenta la cantidad de veces que se activo la interrupcion int 0
+
+STI ; habilita las interrupciones del sistema, despues de haberlas configurado
+; a traves del PIC (controlador de interrupciones programable)
+
+;CODIGO NUEVO!!!!!-------------------------------
+MOV DL, DIM_ABC
+
+INICIALIZO_ABC: MOV CL, 0
+;MOV CL, 41H ; muevo la letra A al registro CL
+LAZO: CMP CL, DL
+JZ INICIALIZO_ABC 
+INC CL
+JMP LAZO ; bucle infinito
+
+; subrutinas-----------------------------------------------
+ORG 3000H
+RUT_F10: PUSH AX ; pusheo registro --> subrutina reusable
+PUSH DX
+
+MOV AL, 1
+MOV BX, OFFSET A
+ADD [BX], CL 
+INT 7 
+
+MOV AL, EOI ; mueve el valor del registro de fin de interrupcion 
+;EOI: indica al pic que se ha completado el manejo de la interrupcion
+OUT EOI, AL ; PIC: registro EOI --> indica al PIC que se ha completado 
+;el manejo de la interrupción 
+;y que está listo para recibir otra interrupción.
+
+POP DX
+POP AX ; subrutina reusable
+
+IRET ;----------------------------------------------------
+END

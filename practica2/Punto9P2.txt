@@ -1,0 +1,54 @@
+;9)Escribir un programa que aguarde el ingreso de una clave de cuatro caracteres por teclado sin visualizarla en pantalla. En 
+;caso de coincidir con una clave predefinida (y guardada en memoria) que muestre el mensaje "Acceso permitido", caso 
+;contrario el mensaje "Acceso denegado".
+
+ORG 1000H
+clave db "hola"
+finClave db ?
+
+permitido db "Acceso permitido"
+dimLP db ?
+
+denegado db "Acceso denegado"
+dimLD db ?
+
+
+ORG 1500H
+CAR DB ?
+
+
+ORG 2000H
+
+
+MOV BX, OFFSET CAR
+INT 6
+MOV CL, [BX]
+
+MOV DL, OFFSET finClave - OFFSET clave 
+DEC DL
+MOV BX, OFFSET clave
+LOOP: CMP CL, [BX]         ; comparo car con lo que tiene la clave
+JNZ ADN
+
+PUSH BX 
+MOV BX, OFFSET CAR
+INT 6
+MOV CL, [BX]
+POP BX
+
+INC BX
+DEC DL
+JNZ LOOP
+
+MOV AL, OFFSET dimLP - OFFSET permitido
+MOV BX, OFFSET permitido
+INT 7
+JMP FIN 
+
+ADN: MOV AL, OFFSET dimLD - OFFSET denegado 
+MOV BX, OFFSET denegado
+INT 7
+
+
+FIN: INT 0
+END

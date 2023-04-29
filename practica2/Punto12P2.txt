@@ -1,0 +1,65 @@
+TIMER EQU 10H
+PIC EQU 20H
+EOI EQU 20H
+N_CLK EQU 10
+
+ORG 40
+IP_CLK DW RUT_CLK
+;-----------------------------1000h---------------------------
+ORG 1000H
+SEG DB 30H; 0 en asciii --> digito decimal 
+SEG1   DB 30H ; digito unidad
+FIN DB ?
+
+;-------------------------------3000h-----------------------------
+ORG 3000H
+RUT_CLK: PUSH AX
+
+; cuando trabajo con seg+1 es la unidad-------
+
+INC SEG1 ;le suma un segundo --> 30h + 1 = 31h (unidad)
+CMP SEG1, 3AH ; 3AH es el siguiente al ultimo digito 9--> (;)
+;cuando se pasa del 9 salta --> y pasa a contar decena
+JNZ RESET ; IMPRIMO UNIDAD
+
+; cuando trabajo con seg es la decena-------
+MOV SEG1, 30H ; inicializo la unidad en 0
+INC SEG ; incremento la decena
+CMP SEG, 36H ; cuando llega al 6 cambio (es el siguiente del ultimo)
+JNZ RESET ;IMPRIMO DECENA
+
+MOV SEG, 30H ; ?? para que inicializo?
+
+RESET: INT 7 ; te imprime el segundo 
+
+MOV AL, 0  ; INICIALIZO AL en 0
+OUT TIMER, AL
+
+MOV AL, EOI ;END OF INTERRUPTION
+OUT PIC, AL
+
+POP AX
+IRET
+
+;--------------------------------2000h---------------------------
+ORG 2000H
+CLI
+
+;----> CONFIGURACION DEL PIC <----------
+MOV AL, 0FDH ;1111 1101
+OUT PIC+1, AL ; PIC: registro IMR --> 1111 1101 --> timer habilitado
+MOV AL, N_CLK ; le pone 10 --> indice que uso
+OUT PIC+5, AL ; PIC: registro INT1 le mando ID (10)
+
+;----> CONFIGURACION DEL TIMER <--------
+MOV AL, 1 ;cuenta hasta 1 (el valor 1 se cambia dependiendo el valor que queramos)
+OUT TIMER+1, AL ; TIMER: registro COMP  11h
+MOV AL, 0  
+OUT TIMER, AL ; TIMER: registro CONT (contador) 10h
+
+;--- --- --- 
+MOV BX, OFFSET SEG ; direccion de la variable 
+MOV AL, OFFSET FIN - OFFSET SEG ;??? 
+STI
+LAZO: JMP LAZO
+END
