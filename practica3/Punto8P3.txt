@@ -1,0 +1,54 @@
+PIC EQU 20H
+HAND EQU 40H
+
+N_HND EQU 10 ;id de la interrupcion int 2
+
+ORG 40 
+IP_HND DW RUT_HND 
+
+ ORG 1000H
+ MSJ DB "UNIVERSIDAD "
+ DB "NACIONAL DE LA PLATA"
+  FIN DB ?
+ 
+ 
+ ORG 3000H ;RUTINA DE ATENCI[ON A LA INTERRUPCION -----------------
+ ;el caracter se imprime desde esta interrupcion
+RUT_HND: PUSH AX 
+
+MOV AL, [BX] ;guardo en al el caracter que va a imprimir
+OUT HAND, AL ;imprime --> buffer
+INC BX ;prox direc
+DEC CL ;disminuye la dim logica de la palabra
+
+MOV AL, 20H ;END OF INTERRUPTION!!!!
+OUT PIC, AL 
+
+POP AX 
+IRET
+;--------------------------2000--------------------------------
+ORG 2000H
+MOV BX, OFFSET MSJ ; direc de la palabra
+MOV CL, OFFSET FIN-OFFSET MSJ ;dimension logica
+
+CLI
+;------> CONFIGURACION DEL PIC <-------------
+MOV AL, 0FBH ; 1111 1011 --> activa el handshake
+OUT PIC+1, AL ; IMR 
+MOV AL, N_HND
+OUT PIC+6, AL ;INT 2 --> HANDSHAKE
+
+;-----> CONFIGURACION DEL HANDSHAKE <---------
+MOV AL, 80H ;1000 0000 --> como el primer dig es 1, habilita la int
+OUT HAND+1, AL ;(estado)
+STI
+
+LAZO: CMP CL, 0 ; 
+JNZ LAZO
+;mientras hay letras en el buffer, se queda en bucle, por que?
+
+IN AL, HAND+1  ; pone el estado Ixxx xxxx 
+AND AL, 7FH ; deshabilita las interrupciones 
+OUT HAND+1, AL
+INT 0
+END

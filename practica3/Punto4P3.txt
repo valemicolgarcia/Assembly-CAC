@@ -1,0 +1,50 @@
+PIO EQU 30H
+
+ ORG 1000H
+MSJ DB "CONCEPTOS DE "
+ DB "ARQUITECTURA DE "
+ DB "COMPUTADORAS"
+FIN DB ?
+
+ ORG 2000H
+ 
+ ;CONFIGURACION DEL PIO!
+ MOV AL, 0FDH ; INICIALIZACION PIO PARA IMPRESORA
+ 
+ OUT PIO+2, AL ;CA xxxx xx01 -->  0 -> strobe es salida / 1 -> busy es entrada
+ MOV AL, 0
+ OUT PIO+3, AL ;CB 0000 0000 --> es de salida
+
+ IN AL, PIO
+ AND AL, 0FDH ; pone el bit strobe en 0
+ OUT PIO, AL ; FIN INICIALIZACION
+ 
+ MOV BX, OFFSET MSJ
+ MOV CL, OFFSET FIN-OFFSET MSJ
+
+POLL: IN AL, PIO ;CONSULTA DE ESTADO 
+ AND AL, 1 ;dejamos el bit de busy en al
+ JNZ POLL ; si esta ocupado salta hasta que se desocupe
+ 
+ MOV AL, [BX] ; manda el primer caracter a al
+ OUT PIO+1, AL ;manda a PB la info a imprimir --> DATOS
+ 
+ ;para que imprima muevo de 0 a 1
+ 
+ ;STROBE 1
+ IN AL, PIO ; PULSO 'STROBE' ; pone el valor de PA
+ OR AL, 02H ;el bit de strobe en 1
+ OUT PIO, AL
+ ;STROBE 2
+ IN AL, PIO
+ AND AL, 0FDH ;el bit de strobe en 0
+ OUT PIO, AL ; FIN PULSO
+ 
+ 
+ 
+ INC BX ; para pasar al siguiente caracter
+ DEC CL ; dec la dimension logica
+ JNZ POLL ; vuelve al loop y hace tdo de nuevo
+ INT 0
+ 
+ END
