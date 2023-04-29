@@ -1,0 +1,123 @@
+
+;punto 15 de la practica 2
+
+;Escribir un programa que implemente un conteo regresivo a partir de 
+;un valor ingresado desde el teclado. El conteo debe
+;comenzar al presionarse la tecla F10. El tiempo transcurrido debe
+;mostrarse en pantalla, actualizándose el valor cada segundo.
+
+
+;CONSTANTES----------
+TIMER EQU 10H
+PIC EQU 20H ; 
+EOI EQU 20H ; end of interruption
+
+N_F10 EQU 9 ; --> id de la tecla f10
+N_CLK EQU 10 ; --> id del reloj
+
+
+ORG 36
+IP_F10 DW RUT_F10 ;--> en memoria
+
+ORG 40
+IP_CLK DW RUT_CLK ;--> dejo cuatro celdas entre interrupciones
+
+;-----------------------------1000h---------------------------
+
+ORG 1000H
+
+SEG DB 30H; 0 en asciii 
+FIN DB ?
+
+ORG 1500H
+NUM DB ? ;numero que ingresamos
+
+
+;-------------------------------3000h-----------------------------
+ORG 3000H
+
+;---------------------------F10-----------------------------------
+RUT_F10: PUSH AX ;me tiene que habilitar el reloj  
+PUSH CX
+PUSH DX
+
+
+
+IN AL, PIC+1 ; IMR  
+CMP AL, 0FCH ; veo si esta habilitado o no
+JNZ HABILITAR
+MOV AL, 0FEH
+OUT PIC+1, AL ;deshabilito --> 1111 1110
+JMP FINF10 ;SALTO EL HAB
+HABILITAR: MOV AL, 0FCH
+OUT PIC+1, AL ;habilito --> 1111 1100
+FINF10: MOV AL, EOI ; --> end of interrupction
+OUT PIC, AL
+
+
+
+POP DX
+POP CX
+POP AX
+
+IRET
+;---------------------------CLOCK------------------------
+RUT_CLK: PUSH AX
+
+MOV SEG, CL ;muevo valor leido de teclado
+INT 7
+DEC SEG ; cuenta regresiva
+LOOP: CMP SEG, 30H 
+JZ SALTO
+RESET: INT 7 ;imprimo 30 seg
+DEC SEG
+JMP LOOP
+
+;deshabilito el clock ;)
+SALTO: MOV AL, 0FEH ;1111 1110 (DEJO F10)
+OUT PIC+1, AL  ; le mando al IMR
+
+MOV AL, 0  ; pongo el contador en 0
+OUT TIMER, AL
+
+MOV AL, EOI ;END OF INTERRUPTION
+OUT PIC, AL
+
+POP AX
+IRET
+
+;--------------------------------2000h---------------------------
+ORG 2000H
+
+CLI
+
+MOV BX, OFFSET NUM; guardamos direc del numero a leer
+INT 6
+MOV CL, [BX] ; num en CL
+;PASAJE POR REGISTRO A SUBRUTINA
+
+;----> CONFIGURACION DEL PIC <----------------
+MOV AL, 0FEH ;1111 1110 
+OUT PIC+1, AL ; PIC: registro IMR --> habilito f10 (timer solo desde f10)
+
+MOV AL, N_F10
+OUT PIC+4, AL ; PIC: registro INT0 le mando ID (9)
+
+MOV AL, N_CLK ; indice del clock
+OUT PIC+5, AL ; PIC: registro INT1 le mando ID (10)
+
+;----> CONFIGURACION DEL TIMER <---------------
+MOV AL, 1 ;cuenta hasta 1 
+OUT TIMER+1, AL ; TIMER: registro COMP  11h
+MOV AL, 0  
+OUT TIMER, AL ; TIMER: registro CONT (contador) 10h
+
+;--- --- --- 
+MOV BX, OFFSET SEG ; direccion de la variable 
+MOV AL, OFFSET FIN - OFFSET SEG ;imprime 2 digitos de los seg
+
+STI
+LAZO: JMP LAZO
+
+int 0
+END
