@@ -1,0 +1,66 @@
+;Escribir un programa que solicite el ingreso de cinco caracteres 
+;por teclado y los almacene en memoria. Una vez
+;ingresados, que los envíe a la impresora a través del HAND-SHAKE, 
+;en primer lugar tal cual fueron ingresados y a
+;continuación en sentido inverso. Implementar dos versiones,
+;una por consulta de estado y otra por interrupción, en lo
+;que se refiere a la comunicación entre el HAND-SHAKE y el
+;microprocesador
+
+;VERSION CONSULTA DE ESTADO!!
+
+HAND EQU 40H
+;---------------------------------1000H------------------------------
+ORG 1000H
+CAR DB ?
+
+;-----------------------------------2000H------------------------------
+ORG 2000H
+
+
+;CONFIGURACION DEL HANDSHAKE
+IN AL, HAND+1 ;pone en AL el estado del hs
+AND AL, 7FH ; 0111 1111 ; pone en 0 las interrupciones --> deshabilitadas
+OUT HAND+1, AL ; lo manda al estado
+
+
+;LECTURA DE CINCO CARACTERES
+MOV BX, OFFSET CAR ; direccion de la cadena
+MOV CL, 5 ; lectura de 5 caracteres
+LOOP: INT 6 ;voy leyendo caracteres en las direcciones proximas de bx
+INC BX
+DEC CL
+JNZ LOOP
+
+;INICIO DE PROGRAMA
+MOV BX, OFFSET CAR ;inicializacion luego de leer
+MOV CL, 5 
+
+  ;--> CONSULTA DE ESTADO
+  POLL: IN AL, HAND+1 
+  AND AL, 1 
+  JNZ POLL
+  
+ ;---> ENVIO DE CARACTER A LA IMPRESORA
+  MOV AL, [BX] 
+  OUT HAND, AL 
+  
+  ;---> SENTIDO NORMAL
+  CMP DL, 0FFH
+  JZ SALTEAR
+  INC BX
+  DEC CL ;llego a 0
+  JNZ POLL
+  
+  ;---> SENTIDO INVERSO
+  MOV DL, 0FFH ;--> CORTE
+  SALTEAR: DEC BX
+  INC CL ; llego a 5
+  CMP CL, 6 ; comparo con 6 
+  JNZ POLL
+  
+  
+  MOV DL, 0 ;vuelvo a inicializar
+
+INT 0
+END

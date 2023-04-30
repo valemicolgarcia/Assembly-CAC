@@ -1,0 +1,100 @@
+;Escribir un programa que solicite el ingreso de cinco caracteres 
+;por teclado y los almacene en memoria. Una vez
+;ingresados, que los envíe a la impresora a través del HAND-SHAKE, 
+;en primer lugar tal cual fueron ingresados y a
+;continuación en sentido inverso. Implementar dos versiones,
+;una por consulta de estado y otra por interrupción, en lo
+;que se refiere a la comunicación entre el HAND-SHAKE y el
+;microprocesador
+
+;VERSION INTERRUPCION!!
+
+PIC EQU 20H
+EOI EQU 20H
+HAND EQU 40H
+N_HND EQU 10; ID --> int 2
+
+;----------------------------------40------------------------------
+ORG 40
+IP_HND DW RUT_HND
+
+;---------------------------------1000H------------------------------
+ORG 1000H
+CAR1 DB ?
+CAR2 DB ?
+CAR3 DB ?
+CAR4 DB ?
+CAR5 DB ?
+
+;-----------------------------------3000H------------------------------
+
+RUT_HND: PUSH AX
+
+ ;---> ENVIO DE CARACTER A LA IMPRESORA
+  loop: MOV AL, [BX] 
+  OUT HAND, AL 
+  
+  ;---> SENTIDO NORMAL
+  CMP DH, 0FFH
+  JZ SALTEAR
+  INC BX
+  DEC CL ;llego a 0
+  JNZ loop
+  
+  ;---> SENTIDO INVERSO
+  MOV DH, 0FFH ;--> CORTE
+  SALTEAR: DEC BX
+  INC CL ; llego a 5
+  CMP CL, 6 ; comparo con 6 
+  JNZ loop
+
+MOV AL, EOI ; end of interruption
+OUT EOI, AL
+
+POP AX
+IRET
+
+;-----------------------------------2000H------------------------------
+ORG 2000H
+
+;-----> LECTURA DE CINCO CARACTERES
+MOV BX, OFFSET CAR1 ; direccion de la cadena
+MOV CL, 5 ; lectura de 5 caracteres
+
+LOO: INT 6 ;voy leyendo caracteres en las direcciones proximas de bx
+INC BX
+DEC CL
+JNZ LOO
+
+
+CLI
+;------> CONFIGURACION DEL PIC <-------------
+MOV AL, 0FBH ; 1111 1011 --> activa el handshake
+OUT PIC+1, AL ; IMR 
+MOV AL, N_HND
+OUT PIC+6, AL ;INT 2 --> HANDSHAKE
+
+;-----> CONFIGURACION DEL HANDSHAKE <---------
+MOV AL, 80H ;1000 0000 --> como el primer dig es 1, habilita la int
+OUT HAND+1, AL ;(estado)
+
+;INICIO DE PROGRAMA
+MOV BX, OFFSET CAR1 ;inicializacion luego de leer
+MOV CL, 5 
+
+STI
+
+LAZO: CMP CL, 6
+JNZ LAZO
+IN AL, HAND+1  ; pone el estado Ixxx xxxx 
+AND AL, 7FH ; deshabilita las interrupciones 
+OUT HAND+1, AL
+  
+ ;FIN DE PROGRAMA
+MOV Dh, 0 ;vuelvo a inicializar
+
+
+INT 0
+END
+
+;imprime todo bien pero no se como hacer para que la interrupcion se ejecute solo una vez

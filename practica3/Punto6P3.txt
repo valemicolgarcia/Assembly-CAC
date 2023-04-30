@@ -1,1 +1,103 @@
+;PUNTO 6 PRACTICA 3
 
+;Escribir un programa que solicite ingresar caracteres por teclado 
+;y que recién al presionar la tecla F10 los envíe a la
+;impresora a través de la PIO. No es necesario mostrar los 
+;caracteres en la pantalla. Ejecutar en configuración P1 C1 del
+;simulador.
+
+PIO EQU 30H
+PIC EQU 20H
+EOI EQU 20H
+N_F10 EQU 10 ;--> id
+
+ORG 40
+IP_F10 DW RUT_F10
+
+;------------------------1000h--------------------------
+ORG 1000H
+NUM_CAR DB 5
+CAR DB ?
+
+;-------------------------3000h-------------------------------
+; SUBRUTINA DE INICIALIZACION ; SUBRUTINA DE GENERACIÓN
+; PIO PARA IMPRESORA ; DE PULSO 'STROBE'
+ORG 3000H 
+
+RUT_F10: PUSH AX
+
+
+  POLL: IN AL, PIO ; ;CONSULTA DE ESTADO
+  AND AL, 1
+  JNZ POLL
+  ;----
+  MOV BX, OFFSET CAR
+  loop: MOV AL, [BX] ;primer carac
+  OUT PIO+1, AL ; pb
+  PUSH AX
+  CALL PULSO
+  POP AX
+  INC BX
+  DEC CL
+  JNZ loop
+  
+  MOV DL, 0FFH
+MOV AL, EOI ;end of interruption
+OUT EOI, AL
+
+POP AX
+IRET
+
+
+;-----> inicializacion de la impresora
+INI_IMP: MOV AL, 0FDH ;1111 1101 
+OUT PIO+2, AL  ; 0 STROBE, 1 BUSY
+MOV AL, 0 
+OUT PIO+3, AL ; CB en 0
+IN AL, PIO 
+AND AL, 0FDH 
+OUT PIO, AL 
+RET
+;------------------------4000h---------------------------
+ORG 4000H
+;----> strobe
+PULSO: IN AL, PIO ;strobe
+OR AL, 02H
+OUT PIO, AL ;imprime
+IN AL, PIO
+AND AL, 0FDH
+OUT PIO, AL
+RET
+
+
+;-----------------------2000h-------------------------------
+; PROGRAMA PRINCIPAL
+ORG 2000H
+
+;CONFIGURACION DE LA IMPRESORA--
+PUSH AX 
+CALL INI_IMP ;inicializacion de la impresora
+POP AX
+;CONFIGURACION DE F10
+CLI ;deshabilito las interrupciones
+MOV AL, 0FEH ;1111 1110
+OUT PIC+1, AL ;IMR -->habilita f10
+MOV AL, N_F10
+OUT PIC+4, AL ; id
+;-----------
+MOV BX, OFFSET CAR
+MOV CL, 0 ; inicializo el contador de numeros leidos
+
+STI ; habilito interrupciones
+
+
+LOOP: CMP DL, 0FFH
+JZ FIN
+INT 6 ;leo en bx
+INC CL
+INC BX
+JMP LOOP
+
+
+FIN: INT 0
+END

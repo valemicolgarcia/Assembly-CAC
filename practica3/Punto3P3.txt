@@ -1,3 +1,10 @@
+;PUNTO 3 PRACTICA 3
+
+;Escribir un programa que encienda una luz a la vez, de las ocho conectadas al puerto paralelo del microprocesador a
+;través de la PIO, en el siguiente orden: 0-1-2-3-4-5-6-7-6-5-4-3-2-1-0-1-2-3-4-5-6-7-6-5-4-3-2-1-0-1-... Cada luz debe
+;estar encendida durante un segundo. Ejecutar en la configuración P1 C0 del simulador.
+
+
 PIC EQU 20H 
 TIMER EQU 10H
 PIO EQU 30H
@@ -11,28 +18,50 @@ INICIO DB 1 ; 0000 0000
 
 ;---------------------------3000h------------------------------------
 ORG 3000H
+   
+   ;---> RUTINA PARA ROTAR LOS BITS A LA IZQUIERDA 1 POSICION
+   
+   ROTARIZ: ADD AL, AL        ; al numero le sumo a si mismo, para que se vaya corriendo de a 1
+   JNC SALTAR                      
+   ADD AL, 1                  ; si hay carry significa que se perdio un byte por la izquierda, por eso le sumamos 1 y se ve por la derecha
+   SALTAR: DEC BL             ; disminuyo cantidad de veces a rotar
+   JNZ ROTARIZ
+   RET                 
+   
+   ;---> RUTINA PARA ROTAR LOS BITS A LA DERECHA 1 POSICION (7 A IZQ)
+   ROTARDER: DEC BL         ;resto los 8 bits con 1 posicion a rotar (1 para la der = 7 para izq)
+   ;entonces en AL tengo las posiciones para ROTARIZ
+   CALL ROTARIZ
+   RET
 
-RUT_CLK:  CMP CL, 7
-JNS SALTEO
+;----> RUTINA DE ATENCION A LA INTERRUPCION 
+RUT_CLK: MOV CL,0
 
-MOV AL, INICIO ; PRENDO LA LUZ INICIO!!!!!
-OUT PIO + 1, AL
-;sumo el numero con si mismo para multiplicar por dos
-MOV AL, INICIO 
-ADD INICIO, AL
-
-JMP SEGUIR
-SALTEO: MOV AL, INICIO
-OUT PIO + 1, AL
-MOV AL, INICIO
-SUB INICIO, AL
-
-SEGUIR: INC CL
-MOV AL, 0
-OUT TIMER, AL       ; CONT lo vuelve a poner en 0 
-MOV AL, 20H         ; termina la subrutina 
-OUT PIC, AL   
-
+  MOV AL, INICIO ;luz del 0000 0001
+  OUT PIO + 1, AL
+  
+  ;--> ROTACION HACIA LA IZQUIERDA
+  LOOP: CMP CL,7 ;roto hacia la izquierda los bits 7 veces
+  JZ SEGUIR
+  MOV BL, 1 ; 1 posicion
+  CALL ROTARIZ
+  OUT PIO + 1, AL ;roto izquierda --> prendo luz
+  INC CL
+  JMP LOOP
+  ;---> ROTACION HACIA LA DERECHA
+  SEGUIR: CMP CL, 0
+  JZ CONTINUE
+  MOV BL, 8 ;cantidad de bits
+  CALL ROTARDER
+  OUT PIO + 1, AL
+  DEC CL
+  JMP SEGUIR
+  
+  ;para el fin de la interrupcion>>>>
+  CONTINUE: MOV AL, 0
+  OUT TIMER, AL       ; CONT lo vuelve a poner en 0 
+  MOV AL, 20H         ; termina la subrutina 
+  OUT PIC, AL  
 
 IRET 
 
