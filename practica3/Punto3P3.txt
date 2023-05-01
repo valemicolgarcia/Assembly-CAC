@@ -35,27 +35,28 @@ ORG 3000H
    RET
 
 ;----> RUTINA DE ATENCION A LA INTERRUPCION 
-RUT_CLK: MOV CL,0
-
-  MOV AL, INICIO ;luz del 0000 0001
+RUT_CLK: MOV AL, INICIO ;luz del 0000 0001
   OUT PIO + 1, AL
   
   ;--> ROTACION HACIA LA IZQUIERDA
-  LOOP: CMP CL,7 ;roto hacia la izquierda los bits 7 veces
-  JZ SEGUIR
+  CMP CL,7 ;roto hacia la izquierda los bits 7 veces
+  JNS SEGUIR ;mientras cl sea mas chico, roto a izq
+  
   MOV BL, 1 ; 1 posicion
   CALL ROTARIZ
-  OUT PIO + 1, AL ;roto izquierda --> prendo luz
+  MOV INICIO, AL ;modifico en memoria el numero rotado
   INC CL
-  JMP LOOP
+  JMP CONTINUE
   ;---> ROTACION HACIA LA DERECHA
-  SEGUIR: CMP CL, 0
-  JZ CONTINUE
+  SEGUIR: CMP CL, 14
+  JNS INICIALIZAR
   MOV BL, 8 ;cantidad de bits
-  CALL ROTARDER
-  OUT PIO + 1, AL
-  DEC CL
-  JMP SEGUIR
+  CALL ROTARDER ;me modifica el registro al
+  MOV INICIO, AL ; guardo en memoria
+  INC CL
+  JMP CONTINUE
+  
+  INICIALIZAR: MOV CL, 0 ;inicializo para que vuelva a arrancar
   
   ;para el fin de la interrupcion>>>>
   CONTINUE: MOV AL, 0

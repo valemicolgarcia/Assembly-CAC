@@ -1,3 +1,9 @@
+;Escribir un programa que permita seleccionar una letra del abecedario al azar. 
+;El código de la letra debe generarse en un registro que incremente 
+;su valor desde el código de A hasta el de Z continuamente.
+; La letra debe quedar seleccionada al presionarse la tecla F10 
+;y debe mostrarse de inmediato en la pantalla de comandos.
+
 PIC EQU 20H ;se definen las constantes
 EOI EQU 20H
 N_F10 EQU 10

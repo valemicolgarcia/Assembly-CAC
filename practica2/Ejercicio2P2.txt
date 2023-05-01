@@ -1,3 +1,9 @@
+;PUNTO 2 PRACTICA 2
+
+; Escribir un programa que muestre en pantalla todos los caracteres disponibles en el simulador MSX88, 
+;comenzando con el caracter cuyo código es el número 01H. 
+
+
 ; Memoria de Datos
 ORG 1000H
 FIN DB 01H 
