@@ -1,9 +1,17 @@
+Escribir un programa que solicite el ingreso de cinco caracteres por teclado y los envíe de a uno por vez a la impresora
+a través de la PIO a medida que se van ingresando. No es necesario mostrar los caracteres en la pantalla. Ejecutar en
+configuración P1 C1.
+
+
 PIO EQU 30H
 ORG 1000H
 NUM_CAR DB 5
 CAR DB ?
+
+
 ; SUBRUTINA DE INICIALIZACION ; SUBRUTINA DE GENERACIÓN
 ; PIO PARA IMPRESORA ; DE PULSO 'STROBE'
+
 ORG 3000H 
 INI_IMP: MOV AL, 0FDH ;1111 1101 
 OUT PIO+2, AL  ; 0 STROBE, 1 BUSY
@@ -22,6 +30,7 @@ IN AL, PIO
 AND AL, 0FDH
 OUT PIO, AL
 RET
+
 ; PROGRAMA PRINCIPAL
 ORG 2000H
 PUSH AX ;RUTINA REUSABLE

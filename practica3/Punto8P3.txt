@@ -7,24 +7,25 @@ ORG 40
 IP_HND DW RUT_HND 
 
  ORG 1000H
- MSJ DB "UNIVERSIDAD "
- DB "NACIONAL DE LA PLATA"
+ MSJ DB "UNI"
   FIN DB ?
  
  
- ORG 3000H ;RUTINA DE ATENCI[ON A LA INTERRUPCION -----------------
+ ORG 3000H ;RUTINA DE ATENCION A LA INTERRUPCION -----------------
  ;el caracter se imprime desde esta interrupcion
-RUT_HND: PUSH AX 
-
+RUT_HND: PUSH AX
 MOV AL, [BX] ;guardo en al el caracter que va a imprimir
+;!!!!!!!
+CMP CL, 0 ;CL CON 0 ANTES DE IMPRIMIR PARA QUE NO SE PASE
+JZ FINNN
+;!!!!!!
 OUT HAND, AL ;imprime --> buffer
 INC BX ;prox direc
 DEC CL ;disminuye la dim logica de la palabra
 
 MOV AL, 20H ;END OF INTERRUPTION!!!!
 OUT PIC, AL 
-
-POP AX 
+FINNN: POP AX
 IRET
 ;--------------------------2000--------------------------------
 ORG 2000H
@@ -43,7 +44,7 @@ MOV AL, 80H ;1000 0000 --> como el primer dig es 1, habilita la int
 OUT HAND+1, AL ;(estado)
 STI
 
-LAZO: CMP CL, 0 ; 
+LAZO: CMP CL, 0 
 JNZ LAZO
 ;mientras hay letras en el buffer, se queda en bucle, por que?
 

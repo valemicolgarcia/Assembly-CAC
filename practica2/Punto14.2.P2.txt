@@ -1,0 +1,99 @@
+;CONSTANTES----------
+TIMER EQU 10H
+PIC EQU 20H ; 
+EOI EQU 20H ; end of interruption
+
+N_F10 EQU 10 ; --> id de la tecla f10
+N_CLK EQU 11 ; --> id del reloj
+
+
+ORG 40
+IP_F10 DW RUT_F10 ;--> en memoria
+
+ORG 44
+IP_CLK DW RUT_CLK ;--> dejo cuatro celdas entre interrupciones
+
+;-----------------------------1000h---------------------------
+
+ORG 1000H
+
+SEG DB 30H; 0 en asciii  ;UNIDAD
+SEG1 DB 30H ;DECENA
+FIN DB ?
+
+;-------------------------------3000h-----------------------------
+ORG 3000H
+
+;---------------------------F10-----------------------------------
+RUT_F10: PUSH AX ;me tiene que habilitar el reloj  
+PUSH CX
+PUSH DX
+
+IN AL, PIC+1 ; IMR  
+XOR AL, 02 ; cambia el bit que apunta a timer 1111 1101
+OUT PIC+1, AL
+
+MOV AL, EOI ; --> end of interrupction
+OUT PIC, AL
+POP DX
+POP CX
+POP AX
+
+IRET
+;---------------------------CLOCK------------------------
+RUT_CLK: PUSH AX
+;FINALIZA CON 33H 30H
+CMP DL, 0FFH
+JZ FINN
+
+INC SEG1
+CMP SEG1, 3AH ;es el siguiente al 9 (UNIDAD)
+JNZ FINN
+
+MOV SEG1, 30H
+INC SEG
+CMP SEG, 33H ;decena veo que no se pase del 33, es el 3
+JNZ FINN
+
+MOV DL, 0FFH
+
+
+
+FINN: MOV AL, 0  ; pongo el contador en 0
+OUT TIMER, AL
+MOV AL, EOI ;END OF INTERRUPTION
+OUT PIC, AL
+
+POP AX
+IRET
+
+;--------------------------------2000h---------------------------
+ORG 2000H
+CLI
+
+;----> CONFIGURACION DEL PIC <----------
+MOV AL, 0FEH ;1111 1110 
+OUT PIC+1, AL ; PIC: registro IMR --> habilito f10 (timer solo desde f10)
+
+MOV AL, N_F10
+OUT PIC+4, AL ; PIC: registro INT0 le mando ID (9)
+
+MOV AL, N_CLK ; indice del clock
+OUT PIC+5, AL ; PIC: registro INT1 le mando ID (10)
+
+;----> CONFIGURACION DEL TIMER <--------
+MOV AL, 1 ;cuenta hasta 1 
+OUT TIMER+1, AL ; TIMER: registro COMP  11h
+MOV AL, 0  
+OUT TIMER, AL ; TIMER: registro CONT (contador) 10h
+
+;--- --- --- 
+
+;      :)
+STI
+LAZO: CMP DL, 0FFH
+JNZ LAZO
+
+int 0
+END
+
