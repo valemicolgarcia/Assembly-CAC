@@ -20,7 +20,6 @@ uno:   .asciiz "UNO"
 dos:   .asciiz "DOS"
 tres:  .asciiz "TRES"
 
-
 .code
 
 ;DIRECCIONES DE CONTROL Y DE DATA

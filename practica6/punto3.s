@@ -11,10 +11,11 @@ RES: .byte 0
 
 .code
 ;DIRECCIONES DE CONTROL Y DE DATA
-LD $s0, CONTROL ($zero) ;$so = CONTROL
-LD $s1, DATA ($zero) ;$s1 = DATA
+LWU $s0, CONTROL ($zero) ;$so = CONTROL
+LWU $s1, DATA ($zero) ;$s1 = DATA
 
 jal INGRESO
+
 beqz $v1, terminar
 dadd $a0, $v0, $0                ;mando numero a $a0 para pasarlo como parametro
 jal INGRESO
@@ -65,10 +66,6 @@ SUMA: daddi $a0, $a0, -48
 daddi $a1, $a1, -48
 
 dadd $t0, $a0, $a1               
-
-SB $t0, RES ($0)                 ;lo guardo en una variable
-
-daddi $t0, $0, RES     
 
 sd $t0, 0($s1)                   ; mando el dato a DATA
 
