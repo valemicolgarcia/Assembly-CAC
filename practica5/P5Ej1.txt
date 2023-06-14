@@ -1,0 +1,75 @@
+.data
+n1: .double 9.13
+n2: .double 6.58
+res1: .double 0.0
+res2: .double 0.0
+
+
+.code
+l.d f1, n1(r0)       ;Cargo en el registro F1 el valor de n1
+l.d f2, n2(r0)       ;Cargo en el registro F2 el valor de n2
+NOP                  ;Intsruccion para solucionar el war
+add.d f3, f2, f1     ;Sumo f2 con f1 y lo guardo en f3
+mul.d f1, f2, f1     ;INSTRUCCION AGREGADA PARA PUNTO D
+mul.d f4, f2, f1     ;Multiplico f2 con f1 y lo guardo en f4
+
+s.d f3, res1(r0)     ;Guarda en memoria
+s.d f4, res2(r0)
+halt
+
+;a) Tomar nota de la cantidad de ciclos, instrucciones y CPI 
+;luego de la ejecución del programa
+
+;16 ciclos, 7 instrucciones, 2.286 CPI
+
+;b) ¿Cuántos atascos por dependencia de datos se generan? 
+;Observar en cada caso cuál es el dato en conflicto y las instrucciones involucradas
+
+;Hay 4 RAW
+
+; add.d f3, f2, f1 --> el dato en conflicto es f2 porque se 
+; lo quiere utilizar como operando cuando aun no fue escrito 
+; en el registro
+
+; s.d f3, res1(r0) --> el dato en conflicto es f3 porque se 
+; lo quiere almacenar en memoria y aun no se le guardo el 
+; resultado de la operación 
+
+; s.d f4, res2(r0) --> el dato en conflicto es f4, porque se
+;quiere almacenar en memoria y aun no se le guardo el resultado
+;de la operacion
+
+;c) ¿Por qué se producen los atascos estructurales? 
+;Observar cuales son las instrucciones que los generan y 
+;en qué etapas del pipeline aparecen.
+
+;Los atascos estructurales aparecen cuando dos instrucciones intentan
+; acceder a memoria simultaneamente
+
+;Las instrucciones Add.d f3, f2, f1 y sd f3, res(r0) quieren acceder a 
+;memoria al mismo tiempo
+;Las instrucciones mul.d f3, f2, f1 y sd f4, res2(r0) quieren acceder a
+; memoria al mismo tiempo
+
+;questionnnnn --> no se deberia guardar los resultados en las variable res y res2??? 
+;porque siguen apareciendo en 0 despues de la ejecucion
+
+;d) Modificar el programa agregando la instrucción mul.d f1, f2, f1 entre 
+;las instrucciones add.d y mul.d.
+;Repetir la ejecución y observar los resultados. ¿Por qué aparece un atasco tipo WAR?
+
+;Porque quiere escribir el registro f1, con la multiplicacion de f2 con f1, pero este todavia no fue leido.
+
+
+;e) Explicar por qué colocando un NOP antes de la suma, se soluciona el RAW 
+;de la instrucción ADD y como consecuencia se elimina el WAR.
+
+;SOLUCION DEL RAW: Esto es porque la instruccion le da tiempo al dato para que se lea correctamente
+;y despues recien se ejecuta la multiplicacion.
+
+;SOLUCION DEL WAR:  
+
+
+
+
+

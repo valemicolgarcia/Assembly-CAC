@@ -1,0 +1,29 @@
+;Escribir un programa que calcule la superficie de un triángulo rectángulo 
+;de base 5,85 cm y altura 13,47 cm.
+;Pista: la superficie de un triángulo se calcula como: Error!
+
+
+.data
+b: .double 5.85      ;base
+h: .double 13.47     ;altura
+res1: .double 0.0    ;superficie del triangulo rectangulo
+
+
+
+.code
+l.d f1, b(r0)        ;Cargo en el registro F1 el valor de la base
+l.d f2, h(r0)        ;Cargo en el registro F2 el valor de a altura
+ld f3, 2.0 (r0)     ;Cargo el 2 en r0 para despues dividirlo --> preguntar si se puede
+
+;En r4 voy a guardar el resultado
+
+NOP                  ;Instruccion para solucionar el war
+mul.d f4, f2, f1     ;base * altura
+ddiv f4, f4, f3      ; (base*altura) / 2
+
+s.d f4, res1(r0)     ;Guarda en memoria el resultado de la superficie.
+
+halt
+
+
+;PREGUNTAR si se puede guardar como valor inmediato el 2 en un registro.

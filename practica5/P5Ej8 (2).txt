@@ -1,0 +1,47 @@
+;Escriba una subrutina que reciba como parámetros las direcciones del comienzo de dos cadenas terminadas en cero
+; y retorne la posición en la que las dos cadenas difieren. En caso de que las dos cadenas sean idénticas, debe retornar -1.
+
+.data
+cadena1: .asciiz "ab"
+cadena2: .asciiz "abc"
+result: .word 0
+
+.code
+
+;PARAMETROS PASADOS A SUBRUTINA
+
+daddi $a0, $0, cadena1                ;direccion de la cadena 1
+daddi $a1, $0, cadena2                ;direccion de la cadena 2
+
+;LLAMADO A SUBRTUINA
+jal SUBRUTINA
+
+sd $v0, result($0)                    ;almaceno en memoria el resultado
+halt
+
+
+; SUBRUTINA
+
+SUBRUTINA: dadd $v0, $0, $0   ; contador de posiciones (nro que devuelvo)
+
+loop: ld $t0, 0($a0)            ;guardamos elemento de la cadena 1
+ld $t1, 0($a1)                  ;guardamos elemento de la cadena 2
+beq $t0, $0, iguales
+beq $t1, $0, FINSUB             ;si la cadena 1 no finalizo y la 2 si significa que difier.
+daddi $v0, $v0, 1               ;incremento el contador
+bne $t0, $t1, FINSUB            ;si las cadenas difieren ya no se compara mas
+daddi $a0, $a0, 1               ;avanzo al sig caracter (cad1)
+daddi $a1, $a1, 1               ;avanzo al sig caracter (cad2)
+J loop
+
+iguales: bne $t1, $0, FINSUB    ;si t1 no es 0 quiere decir que una termino y la otra no, entonces difieren
+
+daddi $v0, $0, -1               ;retorno -1 si son iguales
+
+FINSUB: jr $ra                        ; ret
+
+
+;no se si esta bien lo que me devuelve como posicion
+
+
+

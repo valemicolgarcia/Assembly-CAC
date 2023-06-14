@@ -1,0 +1,43 @@
+;9) El siguiente programa espera usar una subrutina que calcule en forma recursiva
+; el factorial de un número entero
+
+
+.data
+valor: .word 4
+result: .word 0
+
+
+.text
+daddi $sp, $0, 0x400             ; Inicializa el puntero al tope de la pila (1)
+ld $a0, valor($0)                ;parametro enviado a subrutina NUMERO
+jal factorial                    
+sd $v0, result($0)               ;parametro retornado de subrutina FACTORIAL
+halt
+
+;SUBRUTINA!!  
+
+factorial: daddi $sp, $sp, -16       ;reservo lugar en la pila
+sd $ra, 0($sp)                       ;guarda en la pila $ra (DIREC DE RETORNO)
+sd $a0, 8($sp)                       ;guarda en la pila $a0 (NUMERO ACTUALIZADO)
+
+
+beqz $a0, CASOBASE                   ; if (num = 0) --> 0!=1
+
+daddui $a0, $a0, -1                  ; num = num - 1
+
+Jal factorial                        ;salto a fact hasta que num = 1 y guardo direc de retorno
+
+;daddi $a0, $a0, 1
+
+dmul $v0, $a0, $v0                   ; factorial * numero
+J FINSUB
+
+CASOBASE: daddi $v0, $0, 1           ; factorial = 1 
+
+FINSUB: ld $ra, 0 ($sp)             ;recupero direc de retorno
+ld $a0, 8($sp)                      ;recupero numero de la pila
+daddi $sp, $sp, 16                  ;libera lugar de la pila
+
+jr $ra                              ; RET
+
+;NO ANDA :(
