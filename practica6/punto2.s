@@ -28,7 +28,7 @@ LD $s0, CONTROL ($zero) ;$so = CONTROL
 LD $s1, DATA ($zero) ;$s1 = DATA
 
 jal INGRESO
-;beqz $v1, terminar
+beqz $v1, terminar
 nop
 nop
 nop
