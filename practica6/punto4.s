@@ -17,14 +17,14 @@ texto: .asciiz "Ingrese una cadena de cuatro caracteres "
 clave: .asciiz "hola"
 bien: .asciiz "BIENVENIDO!"
 error: .asciiz "ERROR"
-cadena: .asciiz ""   ;cadena a ingresar desde teclado
+cadena: .asciiz 0   ;cadena a ingresar desde teclado
 
 RES: .byte 0
 
 .code
 ;DIRECCIONES DE CONTROL Y DE DATA
-LD $s0, CONTROL ($zero) ;$so = CONTROL
-LD $s1, DATA ($zero) ;$s1 = DATA
+LWU $s0, CONTROL ($zero) ;$so = CONTROL
+LWU $s1, DATA ($zero) ;$s1 = DATA
 
 daddi $t0, $0, texto     
 sd $t0, 0($s1)                   ; mando el dato a DATA
@@ -66,7 +66,7 @@ daddi $t1, $0, 0          ; incremento en memoria
 LOOP: daddi $t2, $0, 9
 sd $t2, 0($s0)                   ;CONTROL = 9 (lectura de caracter) --> se ejecuta
 
-ld $t3, 0($s1)                   ;tomo caracter y lo guardo en t3
+lbu $t3, 0($s1)                   ;tomo caracter y lo guardo en t3
 sb $t1, cadena ($t1)             ;guardo en cadena
 
 daddi $t0, $t0, -1               ;decremento veces
