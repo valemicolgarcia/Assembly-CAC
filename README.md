@@ -1,6 +1,6 @@
 # Assembly-CAC
 
-📚Prácticas de la materia Taller de Lenguajes I de la UNLP
+📚Prácticas de la materia Conceptos de Arquitectura de Computadoras de la UNLP
 
 - Arquitectura Von Neumann, ciclo de instrucción
 - Pasaje de argumentos
